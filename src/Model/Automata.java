@@ -1,10 +1,10 @@
 package Model;
 
 import Graph.AdjacencyList;
+import Graph.Pair;
 import Graph.Vertex;
 
-import java.util.ArrayList;
-import java.util.Collections;
+import java.util.*;
 
 public class Automata {
 
@@ -34,7 +34,6 @@ public class Automata {
         for (String[] strings : matrix) {
             state.add(strings[0]);
         }
-
 
 
         for (int i = 1; i < matrix.length; i++) {
@@ -116,5 +115,133 @@ public class Automata {
                 al.addEdge(nameState, matrix[i][j], 0, matrix[0][j]);
             }
         }
+    }
+
+    @SuppressWarnings({"unchecked", "ResultOfMethodCallIgnored", "rawtypes"})
+    private ArrayList partition() {
+        ArrayList<ArrayList> res = new ArrayList<>();
+
+        HashMap ver = al.getvMap();
+        ArrayList keys = new ArrayList(ver.keySet());
+
+        int n = al.getVertex(keys.get(0)).getAdj().size();
+        ArrayList<String> transitions = new ArrayList<>();
+
+        for (int i = 0; i < n; i++) {
+            transitions.add((String) ((Pair) al.getVertex(keys.get(0)).getAdj().get(i)).getID());
+        }
+        ArrayList listAnswer = new ArrayList();
+        for (Object key : keys) {
+            String ans = (String) al.getVertex(key).getValue();
+            if (!listAnswer.contains(ans))
+                listAnswer.add(ans);
+        }
+        listAnswer.sort(Comparator.naturalOrder());
+        res.add(firstPartition(listAnswer, keys));
+
+        boolean op = true;
+        while (op) {
+            ArrayList<ArrayList> partition = new ArrayList<>();
+            ArrayList<ArrayList> befPartition = res.get(res.size() - 1);
+            res.add(partition);
+            //
+            compareBlocks(befPartition, partition, transitions);
+            op = comparison(befPartition, partition);
+        }
+
+        if (isMealy) {
+            ArrayList<ArrayList> mealy = res.get(res.size() - 1);
+            ArrayList<ArrayList> pn = new ArrayList();
+            for (int i = 0; i < mealy.size() / 2; i++) {
+                mealy.get(i);
+                ArrayList<String> block = new ArrayList();
+                for (int j = 0; j < mealy.get(i).size(); j++) {
+                    String state = ((String) mealy.get(i).get(j)).split(",")[0];
+                    block.add(state);
+                }
+                pn.add(block);
+            }
+            return pn;
+        } else {
+            return res.get(res.size() - 1);
+        }
+    }
+
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    private boolean comparison(ArrayList<ArrayList> befPartition, ArrayList<ArrayList> partition) {
+        boolean op = false;
+        if (befPartition.size() == partition.size() && befPartition.size() > 0) {
+            for (ArrayList list : befPartition) {
+                list.sort(Comparator.comparing(e -> ((String) e)));
+            }
+            for (ArrayList arrayList : partition) {
+                arrayList.sort(Comparator.comparing(e -> ((String) e)));
+            }
+            for (int i = 0; i < partition.size() && !op; i++) {
+                for (int j = 0; j < partition.size(); j++) {
+                    if (partition.get(i).get(0).equals(befPartition.get(j).get(0))) {
+                        for (int l = 0; l < partition.get(i).size(); l++) {
+
+                            op = !partition.get(i).get(l).equals(befPartition.get(i).get(l));
+                        }
+                    }
+                }
+            }
+        }
+        return op;
+    }
+
+    @SuppressWarnings({"unchecked", "SuspiciousMethodCalls", "rawtypes"})
+    private ArrayList<ArrayList> compareBlocks(ArrayList<ArrayList> befPartition, ArrayList<ArrayList> partition, ArrayList<String> transitions) {
+        for (int i = 0; i < befPartition.size(); i++) {
+            ArrayList<String> aux = new ArrayList();
+            ArrayList equivalentList = befPartition.get(i);
+            if (equivalentList.size() > 1) {
+                for (int j = 1; j < equivalentList.size(); j++) {
+                    Vertex first = al.getVertex(equivalentList.get(0));
+                    Vertex oth = al.getVertex(equivalentList.get(j));
+                    for (int k = 0; k < transitions.size(); k++) {
+                        String keyPair = (String) ((Pair) first.getAdj().get(k)).getVertex().getKey();
+                        String keyPair1 = (String) ((Pair) oth.getAdj().get(k)).getVertex().getKey();
+                        int numReject = 0;
+                        for (ArrayList listStates : befPartition) {
+                            if (!(listStates.contains(keyPair) && listStates.contains(keyPair1))) {
+                                numReject++;
+                            }
+                        }
+                        if (numReject == befPartition.size() && !(aux.contains(oth.getKey())))
+                            aux.add((String) oth.getKey());
+                    }
+
+                }
+                ArrayList notExit = new ArrayList<>();
+                for (Object o : equivalentList) {
+                    if (!(aux.contains(o))) {
+                        notExit.add(o);
+                    }
+                }
+                partition.add(notExit);
+                if (aux.size() > 0)
+                    partition.add(aux);
+            } else {
+                partition.add(equivalentList);
+            }
+        }
+        return partition;
+    }
+
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    private ArrayList firstPartition(ArrayList listAnswer, ArrayList keys) {
+        ArrayList<ArrayList> partition = new ArrayList();
+        for (Object o : listAnswer) {
+            ArrayList<String> listEquivalent = new ArrayList();
+            for (Object key : keys) {
+                String ans = (String) al.getVertex(key).getValue();
+                if (ans.equals(o))
+                    listEquivalent.add((String) al.getVertex(key).getKey());
+            }
+            partition.add(listEquivalent);
+        }
+        return partition;
     }
 }

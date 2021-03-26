@@ -84,14 +84,14 @@ public class AdjacencyList<K, V> implements IGraph<K, V> {
         }
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "rawtypes"})
     public ArrayList<K> BFS(K keyInitial) {
 
         K[] keyList = (K[]) vMap.keySet().toArray();
-        for (int i = 0; i < keyList.length; i++) {
-            ((Vertex) vMap.get(keyList[i])).setColor(Vertex.WHITE);
-            ((Vertex) vMap.get(keyList[i])).setDistance(Vertex.INFINITE);
-            ((Vertex) vMap.get(keyList[i])).setParent(null);
+        for (K k : keyList) {
+            ((Vertex) vMap.get(k)).setColor(Vertex.WHITE);
+            ((Vertex) vMap.get(k)).setDistance(Vertex.INFINITE);
+            ((Vertex) vMap.get(k)).setParent(null);
         }
         Vertex vInitial = (Vertex) vMap.get(keyInitial);
         vInitial.setColor(Vertex.GRAY);
@@ -106,8 +106,8 @@ public class AdjacencyList<K, V> implements IGraph<K, V> {
         while (!queue.isEmpty()) {
             Vertex vAct = queue.poll();
             ArrayList<Pair> lAdj = vAct.getAdj();
-            for (int i = 0; i < lAdj.size(); i++) {
-                Vertex vAdj = lAdj.get(i).getVertex();
+            for (Pair pair : lAdj) {
+                Vertex vAdj = pair.getVertex();
                 if (vAdj.getColor() == Vertex.WHITE) {
                     vAdj.setColor(Vertex.GRAY);
                     response.add(vAdj.getKey());
@@ -120,4 +120,14 @@ public class AdjacencyList<K, V> implements IGraph<K, V> {
         }
         return response;
     }
+
+    @SuppressWarnings("rawtypes")
+    public Vertex getVertex(K k) {
+        return (Vertex) vMap.get(k);
+    }
+
+    public HashMap<K, V> getvMap() {
+        return vMap;
+    }
+
 }
