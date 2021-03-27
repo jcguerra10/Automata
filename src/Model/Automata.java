@@ -12,11 +12,11 @@ public class Automata {
     private final AdjacencyList al;
     private final boolean isMealy;
     private final String[] inputs;
-    private final String[] stateTable;
+    private final String[][] stateTable;
     private final String initialState;
 
     @SuppressWarnings("rawtypes")
-    public Automata(AdjacencyList al, boolean isMealy, String[] inputs, String[] stateTable, String initialState) {
+    public Automata(AdjacencyList al, boolean isMealy, String[] inputs, String[][] stateTable, String initialState) {
         this.al = al;
         this.isMealy = isMealy;
         this.inputs = inputs;
@@ -117,7 +117,7 @@ public class Automata {
         }
     }
 
-    @SuppressWarnings({"unchecked", "ResultOfMethodCallIgnored", "rawtypes"})
+    @SuppressWarnings({"unchecked", "ResultOfMethodCallIgnored", "rawtypes", "ConstantConditions"})
     private ArrayList partition() {
         ArrayList<ArrayList> res = new ArrayList<>();
 
@@ -145,7 +145,7 @@ public class Automata {
             ArrayList<ArrayList> befPartition = res.get(res.size() - 1);
             res.add(partition);
             //
-            compareBlocks(befPartition, partition, transitions);
+            partition = compareBlocks(befPartition, partition, transitions);
             op = comparison(befPartition, partition);
         }
 
@@ -243,5 +243,58 @@ public class Automata {
             partition.add(listEquivalent);
         }
         return partition;
+    }
+
+    @SuppressWarnings({"unchecked", "rawtypes", "ConstantConditions"})
+    private String[][] generateTableMealy(ArrayList<ArrayList> partition) {
+        String[][] states = new String[partition.size()-1][inputs.length + 1];
+        String b = "|Q";
+
+        System.arraycopy(inputs, -1, states[0], 0, states[0].length);
+        for (int i = 0; i < states.length; i++) {
+            states[i][0] = b + i + "|";
+        }
+        int j = 2;
+        for (ArrayList p : partition) {
+            if (p.contains(initialState)) {
+                p.add("|Q1|");
+            } else {
+                String temp = b + j + "|";
+                p.add(temp);
+                j += 1;
+            }
+        }
+        states = addOriginalStateTableMealy(states, partition);
+        return states;
+    }
+
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    private String[][] addOriginalStateTableMealy(String[][] states, ArrayList<ArrayList> partition) {
+        for (int i = 0; i < partition.size(); i++) {
+            ArrayList<String> p = partition.get(i);
+            states[i + 1][0] = p.get(p.size() - 1);
+
+            String statePartition = p.get(0);
+
+            int s = 0;
+            for (int j = 1; j < stateTable.length; j++) {
+                if (stateTable[j][0].equals(statePartition)) {
+                    s = j;
+                }
+            }
+
+            for (int j = 1; j < stateTable[0].length; j++) {
+
+                String adjacentState = stateTable[s][j].split(",")[0];
+                String response = stateTable[s][j].split(",")[1];
+
+                for (ArrayList<String> par : partition) {
+                    if (par.contains(adjacentState)) {
+                        states[i + 1][j] = par.get(par.size() - 1) + " , " + response;
+                    }
+                }
+            }
+        }
+        return states;
     }
 }
