@@ -297,4 +297,59 @@ public class Automata {
         }
         return states;
     }
+
+    @SuppressWarnings({"ConstantConditions", "unchecked", "rawtypes"})
+    private String[][] generateTableMoore(ArrayList<ArrayList> partition) {
+        String[][] states = new String[partition.size() + 1][inputs.length + 2];
+        String b = "|Q";
+
+        if (states[0].length - 1 - 1 >= 0) System.arraycopy(inputs, 0, states[0], 1, states[0].length - 1 - 1);
+
+        for (int i = 1; i < states.length; i++) {
+            states[i][0] = b + i + "|";
+        }
+
+        int j = 2;
+        for (ArrayList p : partition) {
+
+            if (p.contains(initialState)) {
+                states[1][states[0].length - 1] = (String) al.getVertex(initialState).getValue();
+                p.add("|Q1|");
+            } else {
+                String temp = b + j + "|";
+                p.add(temp);
+                j += 1;
+            }
+        }
+        states = addOriginalStateTableMoore(states, partition);
+        return states;
+    }
+
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    private String[][] addOriginalStateTableMoore(String[][] states, ArrayList<ArrayList> partition) {
+        int l = 1;
+        int r = 1;
+        for (ArrayList<String> p : partition) {
+
+            states[r][0] = p.get(p.size() - 1);
+            r++;
+            ArrayList<Pair> adj = al.getVertex(p.get(0)).getAdj();
+            for (Pair adjacent : adj) {
+                for (int j = 1; j < states[0].length - 1; j++)
+                    if (states[0][j].equals(adjacent.getID())) {
+
+                        boolean ended = false;
+                        for (int k = 0; k < partition.size() && !ended; k++) {
+                            if (partition.get(k).contains(adjacent.getVertex().getKey())) {
+                                ended = true;
+                                states[l][j] = (String) partition.get(k).get(partition.get(k).size() - 1);
+                                states[l][states[0].length - 1] = (String) al.getVertex(p.get(0)).getValue();
+                            }
+                        }
+                    }
+            }
+            l++;
+        }
+        return states;
+    }
 }
