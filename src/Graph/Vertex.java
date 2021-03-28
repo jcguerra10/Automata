@@ -9,10 +9,12 @@ public class Vertex<K, V> {
     public final static char BLACK = 'B';
 
     private char color;
+    @SuppressWarnings("rawtypes")
     private Vertex parent;
     private int distance;
-    private ArrayList<Pair> adj;
-    private boolean initial;
+    @SuppressWarnings("rawtypes")
+    private final ArrayList<Pair> adj;
+    private boolean initial = false;
 
     public K key;
     public V value;
@@ -22,9 +24,10 @@ public class Vertex<K, V> {
 
     public Vertex(K key) {
         this.key = key;
+        parent = null;
         value = null;
         pairs = new ArrayList<>();
-        initial = false;
+        adj = new ArrayList<>();
     }
 
     public K getKey() {
@@ -33,10 +36,6 @@ public class Vertex<K, V> {
 
     public V getValue() {
         return value;
-    }
-
-    public void setKey(K key) {
-        this.key = key;
     }
 
     public void setValue(V value) {
@@ -50,13 +49,13 @@ public class Vertex<K, V> {
 
     @SuppressWarnings("rawtypes")
     public void addPareja(Vertex vertice, double peso) {
-        pairs.add(new Pair<>(vertice, peso, null));
+        adj.add(new Pair<>(vertice, peso, null));
 
     }
 
     @SuppressWarnings({"rawtypes", "unchecked"})
     public void addPareja(Vertex vertice, double peso, String ruta) {
-        pairs.add(new Pair(vertice, peso, ruta));
+        adj.add(new Pair(vertice, peso, ruta));
     }
 
     public char getColor() {
@@ -67,10 +66,7 @@ public class Vertex<K, V> {
         this.color = color;
     }
 
-    public Vertex getParent() {
-        return parent;
-    }
-
+    @SuppressWarnings("rawtypes")
     public void setParent(Vertex parent) {
         this.parent = parent;
     }
@@ -83,16 +79,9 @@ public class Vertex<K, V> {
         this.distance = distance;
     }
 
+    @SuppressWarnings("rawtypes")
     public ArrayList<Pair> getAdj() {
         return adj;
-    }
-
-    public void setAdj(ArrayList<Pair> adj) {
-        this.adj = adj;
-    }
-
-    public boolean isInitial() {
-        return initial;
     }
 
     public void setInitial(boolean initial) {

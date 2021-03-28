@@ -6,13 +6,13 @@ import Graph.Vertex;
 
 import java.util.*;
 
-import static java.util.Arrays.fill;
-
 public class Automata {
 
     @SuppressWarnings("rawtypes")
     private final AdjacencyList al = new AdjacencyList(true);
     private final boolean isMealy;
+
+
     private final String[] inputs;
     private final String[][] stateTable;
     private final String initialState;
@@ -30,7 +30,7 @@ public class Automata {
         String[][] res;
         fillMachine(stateTable, isMealy);
         modifyRelated();
-        ArrayList partition = partition();
+        ArrayList<ArrayList> partition = partition();
         if (isMealy)
             res = generateTableMealy(partition);
         else
@@ -121,8 +121,9 @@ public class Automata {
 
         Collections.addAll(transitions, matrix[0]);
         for (String[] strings : matrix) {
+
             state.add(strings[0]);
-            ans.add(strings[matrix.length - 1]);
+            ans.add(strings[matrix[0].length - 1]);
         }
         addVertexMoore(matrix, ans, state);
         addEdgeMoore(matrix, state);
@@ -157,9 +158,9 @@ public class Automata {
     private ArrayList partition() {
         ArrayList<ArrayList> res = new ArrayList<>();
 
-        HashMap ver = al.getvMap();
-        ArrayList keys = new ArrayList(ver.keySet());
-
+        HashMap vertices = al.getvMap();
+        Set keys1 = vertices.keySet();
+        ArrayList keys = new ArrayList<>(keys1);
         int n = al.getVertex(keys.get(0)).getAdj().size();
         ArrayList<String> transitions = new ArrayList<>();
 
@@ -179,9 +180,9 @@ public class Automata {
         while (op) {
             ArrayList<ArrayList> partition = new ArrayList<>();
             ArrayList<ArrayList> befPartition = res.get(res.size() - 1);
-            res.add(partition);
             //
             partition = compareBlocks(befPartition, partition, transitions);
+            res.add(partition);
             op = comparison(befPartition, partition);
         }
 
@@ -205,7 +206,7 @@ public class Automata {
 
     @SuppressWarnings({"unchecked", "rawtypes"})
     private boolean comparison(ArrayList<ArrayList> befPartition, ArrayList<ArrayList> partition) {
-        boolean op = false;
+        boolean op = true;
         if (befPartition.size() == partition.size() && befPartition.size() > 0) {
             for (ArrayList list : befPartition) {
                 list.sort(Comparator.comparing(e -> ((String) e)));
@@ -213,6 +214,7 @@ public class Automata {
             for (ArrayList arrayList : partition) {
                 arrayList.sort(Comparator.comparing(e -> ((String) e)));
             }
+            op = false;
             for (int i = 0; i < partition.size() && !op; i++) {
                 for (int j = 0; j < partition.size(); j++) {
                     if (partition.get(i).get(0).equals(befPartition.get(j).get(0))) {
@@ -283,7 +285,7 @@ public class Automata {
 
     @SuppressWarnings({"unchecked", "rawtypes", "ConstantConditions"})
     private String[][] generateTableMealy(ArrayList<ArrayList> partition) {
-        String[][] states = new String[partition.size()-1][inputs.length + 1];
+        String[][] states = new String[partition.size() - 1][inputs.length + 1];
         String b = "|Q";
 
         System.arraycopy(inputs, -1, states[0], 0, states[0].length);
@@ -387,5 +389,13 @@ public class Automata {
             l++;
         }
         return states;
+    }
+
+    public String[] getInputs() {
+        return inputs;
+    }
+
+    public boolean isMealy() {
+        return isMealy;
     }
 }
