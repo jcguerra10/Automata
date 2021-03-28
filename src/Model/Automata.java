@@ -6,22 +6,58 @@ import Graph.Vertex;
 
 import java.util.*;
 
+import static java.util.Arrays.fill;
+
 public class Automata {
 
     @SuppressWarnings("rawtypes")
-    private final AdjacencyList al;
+    private final AdjacencyList al = new AdjacencyList(true);
     private final boolean isMealy;
     private final String[] inputs;
     private final String[][] stateTable;
     private final String initialState;
 
-    @SuppressWarnings("rawtypes")
-    public Automata(AdjacencyList al, boolean isMealy, String[] inputs, String[][] stateTable, String initialState) {
-        this.al = al;
+    @SuppressWarnings({"rawtypes", "RedundantSuppression"})
+    public Automata(boolean isMealy, String[] inputs, String[][] stateTable, String initialState) {
         this.isMealy = isMealy;
         this.inputs = inputs;
         this.stateTable = stateTable;
         this.initialState = initialState;
+    }
+
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    public String[][] getMinimumConnectedAutomaton() {
+        String[][] res;
+        fillMachine(stateTable, isMealy);
+        modifyRelated();
+        ArrayList partition = partition();
+        if (isMealy)
+            res = generateTableMealy(partition);
+        else
+            res = generateTableMoore(partition);
+        return res;
+    }
+
+    @SuppressWarnings({"unchecked", "rawtypes", "SuspiciousMethodCalls"})
+    private void modifyRelated() {
+        ArrayList<String> cVertex = (ArrayList<String>) al.BFS(initialState);
+
+        HashMap vertices = al.getvMap();
+        ArrayList keys = new ArrayList(al.getvMap().keySet());
+
+        for (int i = 0; i < vertices.size(); i++) {
+            Vertex v = al.getVertex(keys.get(i));
+            if (!cVertex.contains(v.getKey())) {
+                al.removeVertex(v.getKey());
+            }
+        }
+    }
+
+    private void fillMachine(String[][] stateTable, boolean isMealy) {
+        if (isMealy)
+            fillMealy(stateTable);
+        else
+            fillMoore(stateTable);
     }
 
     @SuppressWarnings({"rawtypes", "unchecked", "MismatchedQueryAndUpdateOfCollection"})
