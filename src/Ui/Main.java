@@ -49,7 +49,10 @@ public class Main {
         String[] in = a.getInputs();
         System.out.print("|--|");
         for (String s : in) {
-            System.out.print("|" + s + " |");
+            if (!a.isMealy())
+                System.out.print("|" + s + " |");
+            else
+                System.out.print("|" + s + " |    ");
         }
         System.out.println();
         for (int i = 1; i < res.length; i++) {

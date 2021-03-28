@@ -29,7 +29,9 @@ public class Automata {
     public String[][] getMinimumConnectedAutomaton() {
         String[][] res;
         fillMachine(stateTable, isMealy);
-        modifyRelated();
+        if (!isMealy) {
+            modifyRelated();
+        }
         ArrayList<ArrayList> partition = partition();
         if (isMealy)
             res = generateTableMealy(partition);
@@ -285,10 +287,10 @@ public class Automata {
 
     @SuppressWarnings({"unchecked", "rawtypes", "ConstantConditions"})
     private String[][] generateTableMealy(ArrayList<ArrayList> partition) {
-        String[][] states = new String[partition.size() - 1][inputs.length + 1];
+        String[][] states = new String[partition.size() + 1][inputs.length + 1];
         String b = "|Q";
 
-        System.arraycopy(inputs, -1, states[0], 0, states[0].length);
+        if (states[0].length - 1 >= 0) System.arraycopy(inputs, 0, states[0], 1, states[0].length - 1);
         for (int i = 0; i < states.length; i++) {
             states[i][0] = b + i + "|";
         }
