@@ -17,6 +17,13 @@ public class Automata {
     private final String[][] stateTable;
     private final String initialState;
 
+    /**
+     *
+     * @param isMealy
+     * @param inputs
+     * @param stateTable
+     * @param initialState
+     */
     @SuppressWarnings({"rawtypes", "RedundantSuppression"})
     public Automata(boolean isMealy, String[] inputs, String[][] stateTable, String initialState) {
         this.isMealy = isMealy;
@@ -25,6 +32,10 @@ public class Automata {
         this.initialState = initialState;
     }
 
+    /**
+     * this method gives us the minimum equivalent
+     * @return minimum equivalent state table
+     */
     @SuppressWarnings({"rawtypes", "unchecked"})
     public String[][] getMinimumConnectedAutomaton() {
         String[][] res;
@@ -40,6 +51,9 @@ public class Automata {
         return res;
     }
 
+    /**
+     *  modify the automata verifying that it is related
+     */
     @SuppressWarnings({"unchecked", "rawtypes", "SuspiciousMethodCalls"})
     private void modifyRelated() {
         ArrayList<String> cVertex = (ArrayList<String>) al.BFS(initialState);
@@ -55,6 +69,11 @@ public class Automata {
         }
     }
 
+    /**
+     * guides us to the methods depending on whether it is mealy or moore
+     * @param stateTable
+     * @param isMealy
+     */
     private void fillMachine(String[][] stateTable, boolean isMealy) {
         if (isMealy)
             fillMealy(stateTable);
@@ -62,6 +81,10 @@ public class Automata {
             fillMoore(stateTable);
     }
 
+    /**
+     * translate the Matrix into the adjacency list
+     * @param matrix
+     */
     @SuppressWarnings({"rawtypes", "unchecked", "MismatchedQueryAndUpdateOfCollection"})
     private void fillMealy(String[][] matrix) {
         ArrayList transitions = new ArrayList();
@@ -85,6 +108,12 @@ public class Automata {
         addEdgeMealy(matrix, ans, state);
     }
 
+    /**
+     * add the vertex into the AdjacencyList
+     * @param matrix
+     * @param ans
+     * @param state
+     */
     @SuppressWarnings({"rawtypes", "unchecked"})
     private void addVertexMealy(String[][] matrix, ArrayList<String> ans, ArrayList state) {
         boolean flat = true;
@@ -103,6 +132,12 @@ public class Automata {
         }
     }
 
+    /**
+     * Add the edge into the AdjacencyList
+     * @param matrix
+     * @param ans
+     * @param state
+     */
     @SuppressWarnings({"rawtypes", "unchecked"})
     private void addEdgeMealy(String[][] matrix, ArrayList<String> ans, ArrayList state) {
         for (int i = 1; i < matrix.length; i++) {
@@ -115,6 +150,10 @@ public class Automata {
         }
     }
 
+    /**
+     * translate the Matrix into the adjacency list
+     * @param matrix
+     */
     @SuppressWarnings({"rawtypes", "MismatchedQueryAndUpdateOfCollection", "unchecked"})
     private void fillMoore(String[][] matrix) {
         ArrayList transitions = new ArrayList();
@@ -131,6 +170,12 @@ public class Automata {
         addEdgeMoore(matrix, state);
     }
 
+    /**
+     * Add vertex into the AdjacencyList
+     * @param matrix
+     * @param ans
+     * @param state
+     */
     @SuppressWarnings({"rawtypes", "unchecked"})
     private void addVertexMoore(String[][] matrix, ArrayList<String> ans, ArrayList state) {
         boolean flat = true;
@@ -146,6 +191,11 @@ public class Automata {
         }
     }
 
+    /**
+     * Add edges into the AdjacencyList
+     * @param matrix
+     * @param state
+     */
     @SuppressWarnings({"rawtypes", "unchecked"})
     private void addEdgeMoore(String[][] matrix, ArrayList state) {
         for (int i = 1; i < matrix.length; i++) {
@@ -156,6 +206,10 @@ public class Automata {
         }
     }
 
+    /**
+     * Do the partition of the Automaton
+     * @return
+     */
     @SuppressWarnings({"unchecked", "ResultOfMethodCallIgnored", "rawtypes", "ConstantConditions"})
     private ArrayList partition() {
         ArrayList<ArrayList> res = new ArrayList<>();
@@ -206,6 +260,12 @@ public class Automata {
         }
     }
 
+    /**
+     * Compare the previous partition with the actual partition
+     * @param befPartition
+     * @param partition
+     * @return
+     */
     @SuppressWarnings({"unchecked", "rawtypes"})
     private boolean comparison(ArrayList<ArrayList> befPartition, ArrayList<ArrayList> partition) {
         boolean op = true;
@@ -231,6 +291,13 @@ public class Automata {
         return op;
     }
 
+    /**
+     * do the partition with the p2 onwards
+     * @param befPartition
+     * @param partition
+     * @param transitions
+     * @return
+     */
     @SuppressWarnings({"unchecked", "SuspiciousMethodCalls", "rawtypes"})
     private ArrayList<ArrayList> compareBlocks(ArrayList<ArrayList> befPartition, ArrayList<ArrayList> partition, ArrayList<String> transitions) {
         for (int i = 0; i < befPartition.size(); i++) {
@@ -270,6 +337,12 @@ public class Automata {
         return partition;
     }
 
+    /**
+     * do the first Partition
+     * @param listAnswer
+     * @param keys
+     * @return
+     */
     @SuppressWarnings({"unchecked", "rawtypes"})
     private ArrayList firstPartition(ArrayList listAnswer, ArrayList keys) {
         ArrayList<ArrayList> partition = new ArrayList();
@@ -285,6 +358,11 @@ public class Automata {
         return partition;
     }
 
+    /**
+     * generate the final state table of a Mealy Machine
+     * @param partition
+     * @return
+     */
     @SuppressWarnings({"unchecked", "rawtypes", "ConstantConditions"})
     private String[][] generateTableMealy(ArrayList<ArrayList> partition) {
         String[][] states = new String[partition.size() + 1][inputs.length + 1];
@@ -308,6 +386,12 @@ public class Automata {
         return states;
     }
 
+    /**
+     * places the states where they are originally for a Mealy Machine
+     * @param states
+     * @param partition
+     * @return
+     */
     @SuppressWarnings({"unchecked", "rawtypes"})
     private String[][] addOriginalStateTableMealy(String[][] states, ArrayList<ArrayList> partition) {
         for (int i = 0; i < partition.size(); i++) {
@@ -338,6 +422,11 @@ public class Automata {
         return states;
     }
 
+    /**
+     * generate the final state table of a Moore Machine
+     * @param partition
+     * @return
+     */
     @SuppressWarnings({"ConstantConditions", "unchecked", "rawtypes"})
     private String[][] generateTableMoore(ArrayList<ArrayList> partition) {
         String[][] states = new String[partition.size() + 1][inputs.length + 2];
@@ -365,6 +454,12 @@ public class Automata {
         return states;
     }
 
+    /**
+     * places the states where they are originally for a Moore Machine
+     * @param states
+     * @param partition
+     * @return
+     */
     @SuppressWarnings({"unchecked", "rawtypes"})
     private String[][] addOriginalStateTableMoore(String[][] states, ArrayList<ArrayList> partition) {
         int l = 1;
